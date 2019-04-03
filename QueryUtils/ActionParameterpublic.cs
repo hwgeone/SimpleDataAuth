@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace Common.QueryUtils
 {
-    public abstract class ConditionSourceProvider
+    public class ActionParameterpublic
     {
-        public abstract List<ConditionPropery> Get<TSource>();
+        public object[] ConstructorParameters { get; set; }
+        public object[] MethodParameters { get; set; }
     }
 }

@@ -1,13 +1,11 @@
-﻿using Application.SSO;
-using Domain.Enitties;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Models.EnumModels;
+using System.Reflection;
 
-namespace Application.QueryUtils
+namespace Common.QueryUtils
 {
     /// <summary>
     /// 根据角色填充查询值
@@ -17,7 +15,7 @@ namespace Application.QueryUtils
         private ConditionProperyCollectionBuilder<TSource> _builder;
 
         public ConditionFiller()
-        { 
+        {
 
         }
 
@@ -31,9 +29,25 @@ namespace Application.QueryUtils
         public ConditionFiller<TSource> FillConditionsValue()
         {
             List<ConditionPropery> conditionsProps = _builder.Get();
-            object value = new object();
+
             foreach (var condProp in conditionsProps)
             {
+                object value = new object();
+                ActionEntity action = condProp.action;
+                try
+                {
+                    var executingPath = ConfigHelper.GetExecutingDirectory();
+                    var assemblyTypes = Assembly.Load(action.AssemblyName).GetTypes();
+                    Type outerClass = assemblyTypes
+                                            .Single(t => !t.IsInterface && t.Name == action.ClassName);
+                    object instance = Activator.CreateInstance(outerClass, action.MethodParams.ConstructorParameters);
+                    MethodInfo mi = outerClass.GetMethod(action.MethodName);
+                    value = mi.Invoke(instance, action.MethodParams.MethodParameters);
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
                 string name = condProp.Key.PropertyName;
                 _builder.AddConditionValue(name, value);
             }

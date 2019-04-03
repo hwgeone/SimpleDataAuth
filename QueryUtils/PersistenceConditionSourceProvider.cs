@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.QueryUtils
+namespace Common.QueryUtils
 {
     public class PersistenceConditionSourceProvider:ConditionSourceProvider
     {
-        public override List<CustomBusinessTableForQuery> Get<TSource>()
+        public override List<ConditionPropery> Get<TSource>()
         {
             throw new NotImplementedException();
         }

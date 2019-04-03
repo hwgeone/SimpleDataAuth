@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.QueryUtils
+namespace Common.QueryUtils
 {
     public class ConditionProperyCollectionBuilder<TSource> where TSource:class
     {
@@ -44,20 +44,7 @@ namespace Application.QueryUtils
                 if (!_readAll)
                 {
                     AttributeConditionSourceProvider prodiver = new AttributeConditionSourceProvider();
-                    List<CustomBusinessTableForQuery> conditionSource = prodiver.Get<TSource>();
-                    foreach (var cbtfq in conditionSource)
-                    {
-                        Type properTy = typeof(TSource).GetProperty(cbtfq.PropertyName).PropertyType;
-                        conProps.Add(
-                                new ConditionPropery()
-                                {
-                                    Key = new PropertyKey()
-                                    {
-                                        PropertyName = cbtfq.PropertyName,
-                                        PropertyType = properTy
-                                    },
-                                });
-                    }
+                    conProps = prodiver.Get<TSource>();
                 }
             }
             return conProps;

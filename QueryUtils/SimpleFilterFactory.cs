@@ -6,12 +6,12 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.QueryUtils
+namespace Common.QueryUtils
 {
     public static class SimpleFilterFactory<TSource>
     {
         private static ConditionPropery curConProp;
-
+        private static object lockobj = new object();
         public static Expression<Func<TSource, bool>> GetWhereExpression(ConditionPropery conProp)
         {
             return ExpressionHelper.GetMeberEqualValueLambda<TSource>(conProp);
@@ -19,12 +19,14 @@ namespace Application.QueryUtils
 
         public static Func<TSource, bool> GetWhereFunc(ConditionPropery conProp)
         {
-            curConProp = conProp;
-            Func<TSource, bool> func = FuncMethod;
-            return func;
+            lock (lockobj)
+            {
+                curConProp = conProp;
+            }
+            return FuncMethod;
         }
 
-        private static bool FuncMethod(TSource source)
+        public static bool FuncMethod(TSource source)
         {
             Type sourceType = typeof(TSource);
             PropertyInfo prop = sourceType.GetProperty(curConProp.Key.PropertyName);
@@ -39,8 +41,14 @@ namespace Application.QueryUtils
 
     public class ConditionPropery
     {
+        public ConditionPropery()
+        {
+            Key = new PropertyKey();
+            action = new ActionEntity();
+        }
         public PropertyKey Key { get; set; }
         public object PropertyValue { get; set; }
+        public ActionEntity action { get; set; }
     }
 
     public class PropertyKey
